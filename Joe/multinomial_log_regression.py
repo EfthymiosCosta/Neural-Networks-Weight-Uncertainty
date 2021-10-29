@@ -45,14 +45,13 @@ def gradient(mu, rho, x, y, tau):
     sigma = sigma_transform(rho)
     beta = mu + np.multiply(sigma, epsilon)
 
-    z = y @ beta
-    z = [np.dot(a, b) for a, b in zip(z, x)]
-    z = np.ones(n) - np.reciprocal(1 + np.exp(z))
-    z = np.transpose(np.repeat([z], repeats=m, axis=0))
-    z = np.multiply(z, x)
-    z = np.transpose(y) @ z
+    z = np.eye(k)
+    exps = np.exp(z @ beta @ np.transpose(x))
+    denom = np.reciprocal(np.sum(exps, axis=0))
+    denom = np.repeat([denom], axis=0, repeats=k)
+    exps = np.multiply(exps, denom)
 
-    grad_mu = z - beta / (tau**2)
+    grad_mu = np.transpose(y) @ x - exps @ x - beta / (tau**2)
     grad_rho = np.multiply(grad_mu, epsilon) + np.reciprocal(sigma)
     grad_rho = np.multiply(grad_rho, np.reciprocal(np.ones((k, m)) + np.exp(-rho)))
 
@@ -78,8 +77,17 @@ def calculate_ELBO(mu, rho, tau, x, y, samples):
     return total / samples
 
 
+def assess_classification_error(x, y, mu):
+    (k, m) = mu.shape
+    (n, _) = x.shape
+
+    ys = np.eye(k)
+    z = ys @ mu @ np.transpose(x)
+    print(z)
+
+
 def main():
-    n, m, k = 100, 3, 4
+    n, m, k = 5, 3, 4
     mean_1 = np.array([1, 3, 1])
     mean_2 = np.array([0, 0, 1])
     mean_3 = np.array([3, 1, 1])
@@ -115,9 +123,9 @@ def main():
 
     for iteration in range(10000):
         grad_mu, grad_rho = gradient(mu, rho, x, y, tau)
-        mu -= alpha * grad_mu
-        rho -= alpha * grad_rho
-        # print(mu, rho)
+        mu += alpha * grad_mu
+        rho += alpha * grad_rho
+        # assess_classification_error(x, y, mu)
         if iteration % 100 == 0:
             print("ELBO: %s" % calculate_ELBO(mu, rho, tau, x, y, 1000))
 

@@ -22,8 +22,9 @@ def gradient(mu, rho, x, y, tau):
 
     grad_mu = - np.dot(np.transpose(x), z) + beta / (tau**2)
 
-    grad_rho = - np.multiply(epsilon**2, np.reciprocal(sigma)) - np.reciprocal(sigma) + \
-                 np.multiply(epsilon**2, np.reciprocal(sigma**3)) + np.multiply(epsilon, grad_mu)
+    # grad_rho = - np.multiply(epsilon**2, np.reciprocal(sigma)) - np.reciprocal(sigma) + \
+    #              np.multiply(epsilon**2, np.reciprocal(sigma**3)) + np.multiply(epsilon, grad_mu)
+    grad_rho = - np.reciprocal(sigma) + np.multiply(epsilon, grad_mu)
     grad_rho = np.multiply(grad_rho, np.reciprocal(np.ones(m) + np.exp(-rho)))
 
     return grad_mu, grad_rho

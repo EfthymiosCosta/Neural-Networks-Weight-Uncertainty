@@ -126,10 +126,10 @@ def main():
 
     show_selection(mu, rho, x_1, x_2, 10)
 
-    alpha = 0.00001
+    alpha = 0.0001
 
     for iteration in range(10000):
-        grad_mu, grad_rho = gradient(mu, sigma, x, y, tau=1)
+        grad_mu, grad_rho = gradient(mu, rho, x, y, tau=1)
         mu += alpha * grad_mu
         rho += alpha * grad_rho
         if iteration % 100 == 0:
